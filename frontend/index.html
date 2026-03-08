@@ -959,26 +959,26 @@
             <div class="fee-pct">1%</div>
             <div class="fee-desc">Collected on every executed trade. Automatically sent to the OrangeBot developer wallet on Polygon.</div>
             <div class="fee-example">
-              Trade size: $100.00<br/>
-              Your profit: ~$1.50+<br/>
-              OrangeBot fee: $1.00<br/>
-              <span style="color:var(--orange)">Net profit: $0.50+</span>
+              Trade size: $500.00<br/>
+              Your profit: ~$7.50+<br/>
+              OrangeBot fee: $5.00<br/>
+              <span style="color:var(--orange)">Net profit: $2.50+</span>
             </div>
           </div>
           <div class="fee-card">
             <div class="fee-type">Win Fee</div>
-            <div class="fee-pct">1%</div>
+            <div class="fee-pct">0.5%</div>
             <div class="fee-desc">Collected when a resolved position is redeemed back to USDC. Only charged on confirmed wins.</div>
             <div class="fee-example">
-              Redeemed: $103.00<br/>
-              Win fee: $1.03<br/>
-              <span style="color:var(--orange)">You keep: $101.97</span>
+              Redeemed: $505.00<br/>
+              Win fee: $2.53<br/>
+              <span style="color:var(--orange)">You keep: $502.47</span>
             </div>
           </div>
         </div>
         <div>
           <div class="section-tag" style="margin-bottom:16px;">Why fees?</div>
-          <p style="font-size:1.1rem; line-height:1.7; color:var(--muted); font-weight:300; margin-bottom:24px;">OrangeBot is fully open source and free to download. The small fee supports ongoing development and keeps the hosted platform running — so you never pay a subscription.</p>
+          <p style="font-size:1.1rem; line-height:1.7; color:var(--muted); font-weight:300; margin-bottom:24px;">OrangeBot is completely free to use. The small fee supports ongoing development and keeps the cloud platform running 24/7 — so you never pay a subscription, never pay upfront, and never pay anything unless the bot is actively making you money.</p>
           <p style="font-size:0.875rem; line-height:1.7; color:var(--muted); font-weight:300; margin-bottom:24px;">The fee wallet address is hardcoded openly in the source code. You can verify every transaction on Polygonscan at any time.</p>
           <div style="font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--orange); background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:16px; word-break:break-all;">
             Fee wallet:<br/>0x8446df20DAae168bBFfBb6774d1a3D1D9b17f970
@@ -1224,8 +1224,8 @@
 <script>
 
 // ── SUPABASE CONFIG ──
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://vdinofxhwkfrswcimbep.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkaW5vZnhod2tmcnN3Y2ltYmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MjgxODYsImV4cCI6MjA4ODUwNDE4Nn0.TdHpQ8DUeYFsJMPOewgbbOY3gGEb4GF8rPDxHKTXmgI';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
