@@ -950,30 +950,14 @@
   <section class="fee-section" id="fees">
     <div class="section" style="padding-top:80px; padding-bottom:80px;">
       <div class="section-tag">Transparent Pricing</div>
-      <div class="section-title">100% FREE.<br/>SMALL FEE ON <span style="color:var(--orange)">WINS.</span></div>
-      <p class="section-sub">OrangeBot is free to use. We take a small transparent fee on each trade and each win — that's it.</p>
+      <div class="section-title">100% FREE.<br/>SMALL FEE ON <span style="color:var(--orange)">TRADES.</span></div>
+      <p class="section-sub">OrangeBot is free to use. We take a small transparent 1% fee on each trade — that's it. No win fees. No subscriptions. Ever.</p>
       <div class="fee-grid">
         <div>
           <div class="fee-card" style="margin-bottom:20px;">
             <div class="fee-type">Trade Fee</div>
             <div class="fee-pct">1%</div>
             <div class="fee-desc">Collected on every executed trade. Automatically sent to the OrangeBot developer wallet on Polygon.</div>
-            <div class="fee-example">
-              Trade size: $500.00<br/>
-              Your profit: ~$7.50+<br/>
-              OrangeBot fee: $5.00<br/>
-              <span style="color:var(--orange)">Net profit: $2.50+</span>
-            </div>
-          </div>
-          <div class="fee-card">
-            <div class="fee-type">Win Fee</div>
-            <div class="fee-pct">0.5%</div>
-            <div class="fee-desc">Collected when a resolved position is redeemed back to USDC. Only charged on confirmed wins.</div>
-            <div class="fee-example">
-              Redeemed: $505.00<br/>
-              Win fee: $2.53<br/>
-              <span style="color:var(--orange)">You keep: $502.47</span>
-            </div>
           </div>
         </div>
         <div>
@@ -1160,6 +1144,32 @@
       </div>
     </div>
 
+    <!-- CHANGE PASSWORD -->
+    <div class="wallet-section" style="margin-bottom:32px;">
+      <h3>🔒 Change Password</h3>
+      <div id="passMsg" class="form-success"></div>
+      <div id="passErr" class="form-error"></div>
+      <div class="wallet-form">
+        <div class="form-group">
+          <label class="form-label">New Password</label>
+          <div style="position:relative;">
+            <input type="password" class="form-input" id="newPassword" placeholder="Min 8 characters" style="padding-right:48px;"/>
+            <button type="button" onclick="togglePass('newPassword',this)" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:#666;cursor:pointer;font-size:0.85rem;">Show</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm New Password</label>
+          <div style="position:relative;">
+            <input type="password" class="form-input" id="confirmPassword" placeholder="Repeat password" style="padding-right:48px;"/>
+            <button type="button" onclick="togglePass('confirmPassword',this)" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:#666;cursor:pointer;font-size:0.85rem;">Show</button>
+          </div>
+        </div>
+        <div class="form-group full">
+          <button class="btn btn-primary" onclick="changePassword()" style="padding:12px 28px;">Update Password</button>
+        </div>
+      </div>
+    </div>
+
     <!-- TRADES -->
     <div class="trades-section">
       <div class="trades-header">Recent Trades</div>
@@ -1196,7 +1206,10 @@
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
-        <input type="password" class="form-input" id="signupPassword" placeholder="Min 8 characters"/>
+        <div style="position:relative;">
+        <input type="password" class="form-input" id="signupPassword" placeholder="Min 8 characters" style="padding-right:48px;"/>
+        <button type="button" onclick="togglePass('signupPassword',this)" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:#666;cursor:pointer;font-size:0.85rem;">Show</button>
+      </div>
       </div>
       <button class="btn btn-primary form-submit" onclick="handleSignup()">Create Free Account</button>
     </div>
@@ -1208,7 +1221,10 @@
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
-        <input type="password" class="form-input" id="loginPassword" placeholder="••••••••"/>
+        <div style="position:relative;">
+        <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" style="padding-right:48px;"/>
+        <button type="button" onclick="togglePass('loginPassword',this)" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:#666;cursor:pointer;font-size:0.85rem;">Show</button>
+      </div>
       </div>
       <button class="btn btn-primary form-submit" onclick="handleLogin()">Log In</button>
     </div>
@@ -1233,8 +1249,53 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 let botRunning = false;
 let refreshInterval = null;
+// ── TOGGLE PASSWORD VISIBILITY ──
+function togglePass(fieldId, btn) {
+  const input = document.getElementById(fieldId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = 'Hide';
+  } else {
+    input.type = 'password';
+    btn.textContent = 'Show';
+  }
+}
 
-// ── INIT ──
+// ── CHANGE PASSWORD ──
+async function changePassword() {
+  const newPass = document.getElementById('newPassword').value;
+  const confirmPass = document.getElementById('confirmPassword').value;
+  const msgEl = document.getElementById('passMsg');
+  const errEl = document.getElementById('passErr');
+  msgEl.style.display = 'none';
+  errEl.style.display = 'none';
+
+  if (!newPass || newPass.length < 8) {
+    errEl.textContent = 'Password must be at least 8 characters.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (newPass !== confirmPass) {
+    errEl.textContent = 'Passwords do not match.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const { error } = await sb.auth.updateUser({ password: newPass });
+  if (error) {
+    errEl.textContent = error.message;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  msgEl.textContent = '✅ Password updated successfully!';
+  msgEl.style.display = 'block';
+  document.getElementById('newPassword').value = '';
+  document.getElementById('confirmPassword').value = '';
+  setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+}
+
+// ── START ──
 async function init() {
   document.getElementById('dashDate').textContent = new Date().toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'

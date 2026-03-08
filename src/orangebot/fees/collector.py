@@ -1,7 +1,7 @@
 """
 OrangeBot Fee Collector
 =======================
-Transparently collects a 1% developer fee on each trade executed by OrangeBot.
+Transparently collects a 1% developer fee on each trade executed by OrangeBot. No fees are charged on redemptions or wins.
 
 This fee supports free distribution of OrangeBot to all users.
 The fee wallet address and percentage are openly disclosed in:
