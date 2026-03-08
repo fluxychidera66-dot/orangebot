@@ -85,12 +85,17 @@ def background_poller():
 
 class HealthHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        poll_and_start_bots()  # also poll on every HTTP request
+        poll_and_start_bots()
         self.send_response(200)
         self.end_headers()
-        msg = f"OrangeBot Runner — Active bots: {len(active_bots)}"
+        try:
+            test = sb.table("bot_instances").select("*").execute()
+            rows = test.data or []
+            msg = f"OrangeBot Runner — Active bots: {len(active_bots)} — DB rows: {len(rows)} — Statuses: {[r.get('status') for r in rows]}"
+        except Exception as e:
+            msg = f"OrangeBot Runner — DB ERROR: {e}"
         self.wfile.write(msg.encode())
-        print(f"[{datetime.now().isoformat()}] Health check — {msg}")
+        print(f"[{datetime.now().isoformat()}] {msg}")
 
     def log_message(self, format, *args):
         pass
@@ -98,6 +103,12 @@ class HealthHandler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     print(f"[{datetime.now().isoformat()}] OrangeBot Runner starting on port {PORT}...")
+    # Test Supabase connection on startup
+    try:
+        test = sb.table("bot_instances").select("count").execute()
+        print(f"[{datetime.now().isoformat()}] Supabase connection OK: {test.data}")
+    except Exception as e:
+        print(f"[{datetime.now().isoformat()}] Supabase connection FAILED: {e}")
     
     # Start background polling thread
     t = threading.Thread(target=background_poller, daemon=True)
