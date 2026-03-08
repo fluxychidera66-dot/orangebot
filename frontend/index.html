@@ -1614,17 +1614,49 @@ async function saveWallet() {
 async function toggleBot() {
   if (!currentUser) return;
 
-  const newStatus = botRunning ? 'stopped' : 'starting';
+  const btn = document.getElementById('botToggleBtn');
   const dryRun = document.getElementById('dryRunToggle').checked;
 
-  await sb.from('bot_instances').upsert({
-    user_id: currentUser.id,
-    status: newStatus,
-    dry_run: dryRun,
-    started_at: newStatus === 'starting' ? new Date().toISOString() : undefined,
-    stopped_at: newStatus === 'stopped' ? new Date().toISOString() : undefined,
-  }, { onConflict: 'user_id' });
+  if (botRunning) {
+    // STOP
+    btn.textContent = 'Stopping...';
+    btn.disabled = true;
+    await sb.from('bot_instances').update({
+      status: 'stopped',
+      stopped_at: new Date().toISOString(),
+    }).eq('user_id', currentUser.id);
+    botRunning = false;
+  } else {
+    // START — make sure row exists first
+    btn.textContent = 'Starting...';
+    btn.disabled = true;
+    const { data: existing } = await sb.from('bot_instances')
+      .select('id')
+      .eq('user_id', currentUser.id)
+      .single();
 
+    if (existing) {
+      await sb.from('bot_instances').update({
+        status: 'starting',
+        dry_run: dryRun,
+        started_at: new Date().toISOString(),
+        stopped_at: null,
+        error_message: null,
+      }).eq('user_id', currentUser.id);
+    } else {
+      await sb.from('bot_instances').insert({
+        user_id: currentUser.id,
+        status: 'starting',
+        dry_run: dryRun,
+        min_profit_pct: 1.5,
+        max_position_usd: 100,
+        started_at: new Date().toISOString(),
+      });
+    }
+    botRunning = true;
+  }
+
+  btn.disabled = false;
   await loadBotStatus();
 }
 
