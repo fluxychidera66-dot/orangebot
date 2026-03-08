@@ -18,20 +18,22 @@ sb: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 active_bots: dict = {}
 
 def poll_and_start_bots():
-    """Check Supabase for bots that need to start."""
     try:
-        result = sb.table("bot_instances").select("*, wallets(*)").eq("status", "starting").execute()
-        bots = result.data or []
-        print(f"[{datetime.now().isoformat()}] Polling — found {len(bots)} bots with status=starting")
-        
+        # Get starting bots
+        bots_result = sb.table("bot_instances").select("*").eq("status", "starting").execute()
+        bots = bots_result.data or []
+        print(f"[{datetime.now().isoformat()}] Found {len(bots)} bots with status=starting")
+
         for bot in bots:
             user_id = bot["user_id"]
             if user_id in active_bots:
                 continue
 
-            wallet = bot.get("wallets") or bot.get("wallets", None)
-            print(f"Bot data keys: {list(bot.keys())}")
-            print(f"Wallet data: {wallet}")
+            # Fetch wallet separately
+            wallet_result = sb.table("wallets").select("*").eq("user_id", user_id).execute()
+            wallet = wallet_result.data[0] if wallet_result.data else None
+            print(f"[{datetime.now().isoformat()}] Wallet for {user_id[:8]}: {wallet is not None}")
+
             if not wallet:
                 sb.table("bot_instances").update({
                     "status": "error",
@@ -41,7 +43,7 @@ def poll_and_start_bots():
 
             if not wallet.get("wallet_address") or not wallet.get("poly_api_key"):
                 sb.table("bot_instances").update({
-                    "status": "error", 
+                    "status": "error",
                     "error_message": "Missing wallet address or API key.",
                 }).eq("user_id", user_id).execute()
                 continue
@@ -66,9 +68,8 @@ def poll_and_start_bots():
             uid = bot["user_id"]
             if uid in active_bots:
                 del active_bots[uid]
-                print(f"[{datetime.now().isoformat()}] Bot stopped for user {uid[:8]}")
 
-        # Heartbeat for running bots
+        # Heartbeat
         for user_id in list(active_bots.keys()):
             sb.table("bot_instances").update({
                 "last_heartbeat": datetime.now(timezone.utc).isoformat(),
