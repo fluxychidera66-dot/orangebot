@@ -1597,7 +1597,13 @@ async function saveWallet() {
     max_position_usd: maxPosition,
   };
 
-  await sb.from('bot_instances').upsert(botData, { onConflict: 'user_id' });
+  const { error: botError } = await sb.from('bot_instances').upsert(botData, { onConflict: 'user_id' });
+  if (botError) {
+    console.error('Bot instance error:', botError);
+    errEl.textContent = 'Bot setup error: ' + botError.message;
+    errEl.style.display = 'block';
+    return;
+  }
 
   msgEl.textContent = '✅ Credentials saved securely!';
   msgEl.style.display = 'block';
