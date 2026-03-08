@@ -29,7 +29,9 @@ def poll_and_start_bots():
             if user_id in active_bots:
                 continue
 
-            wallet = bot.get("wallets")
+            wallet = bot.get("wallets") or bot.get("wallets", None)
+            print(f"Bot data keys: {list(bot.keys())}")
+            print(f"Wallet data: {wallet}")
             if not wallet:
                 sb.table("bot_instances").update({
                     "status": "error",
