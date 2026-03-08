@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "orangebot"
+version = "1.0.0"
+description = "OrangeBot - Automated Polymarket Arbitrage Trading Bot"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "OrangeBot"}
+]
+keywords = ["polymarket", "arbitrage", "trading", "bot", "prediction-markets"]
+dependencies = [
+    "aiohttp>=3.9.0",
+    "websockets>=12.0",
+    "web3>=6.0.0",
+    "eth-account>=0.10.0",
+    "python-dotenv>=1.0.0",
+    "structlog>=23.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "click>=8.0.0",
+    "rich>=13.0.0",
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "jinja2>=3.1.0",
+    "python-multipart>=0.0.6",
+    "py-clob-client>=0.18.0",
+    "pysocks>=1.7.0",
+    "python-socks[asyncio]>=2.0.0",
+    "requests[socks]>=2.28.0",
+    "httpx[socks]>=0.25.0",
+    "aiosqlite>=0.19.0",
+    "polymarket-apis>=0.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+
+[project.scripts]
+orangebot = "orangebot.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
