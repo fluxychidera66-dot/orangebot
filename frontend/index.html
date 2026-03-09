@@ -1108,7 +1108,51 @@
       </div>
     </div>
 
-    <!-- WALLET SETUP -->
+    <!-- TUTORIAL -->
+<div class="wallet-section" style="margin-bottom:32px;">
+  <h3>📖 How To Set Up Your Bot</h3>
+  <div style="display:flex; flex-direction:column; gap:20px; margin-top:16px;">
+    <div style="display:flex; gap:16px; align-items:flex-start;">
+      <div style="min-width:32px; height:32px; background:var(--orange); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; color:#000; font-size:0.85rem;">1</div>
+      <div>
+        <div style="font-weight:600; font-size:0.925rem; margin-bottom:4px;">Get Your Polymarket API Keys</div>
+        <div style="font-size:0.825rem; color:var(--muted); margin-bottom:8px;">Go to Polymarket Builder Settings, create a builder profile and copy your API Key, Secret and Passphrase.</div>
+        <a href="https://polymarket.com/settings?tab=builder" target="_blank" class="btn btn-outline" style="padding:8px 16px; font-size:0.8rem;">Open Polymarket Settings →</a>
+      </div>
+    </div>
+    <div style="display:flex; gap:16px; align-items:flex-start;">
+      <div style="min-width:32px; height:32px; background:var(--orange); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; color:#000; font-size:0.85rem;">2</div>
+      <div>
+        <div style="font-weight:600; font-size:0.925rem; margin-bottom:4px;">Get a Free Polygon Wallet</div>
+        <div style="font-size:0.825rem; color:var(--muted); margin-bottom:8px;">Download MetaMask and create a free wallet. You'll need your 0x wallet address.</div>
+        <a href="https://metamask.io/download/" target="_blank" class="btn btn-outline" style="padding:8px 16px; font-size:0.8rem;">Get MetaMask Free →</a>
+      </div>
+    </div>
+    <div style="display:flex; gap:16px; align-items:flex-start;">
+      <div style="min-width:32px; height:32px; background:var(--orange); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; color:#000; font-size:0.85rem;">3</div>
+      <div>
+        <div style="font-weight:600; font-size:0.925rem; margin-bottom:4px;">Connect MetaMask to Polymarket</div>
+        <div style="font-size:0.825rem; color:var(--muted);">Go to polymarket.com, connect your MetaMask wallet, then go to Settings to generate your API credentials.</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:16px; align-items:flex-start;">
+      <div style="min-width:32px; height:32px; background:var(--orange); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; color:#000; font-size:0.85rem;">4</div>
+      <div>
+        <div style="font-weight:600; font-size:0.925rem; margin-bottom:4px;">Enter Your Credentials Below</div>
+        <div style="font-size:0.825rem; color:var(--muted);">Paste your Wallet Address, API Key, Secret and Passphrase in the form below and hit Save Credentials.</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:16px; align-items:flex-start;">
+      <div style="min-width:32px; height:32px; background:var(--orange); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; color:#000; font-size:0.85rem;">5</div>
+      <div>
+        <div style="font-weight:600; font-size:0.925rem; margin-bottom:4px;">Start Your Bot & Make Money</div>
+        <div style="font-size:0.825rem; color:var(--muted);">Once credentials are saved, hit Start Bot. OrangeBot will scan 1,500+ markets 24/7 and trade automatically.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WALLET SETUP -->
     <div class="wallet-section" id="walletSection">
       <h3>🔑 Wallet & API Credentials</h3>
       <div id="walletMsg" class="form-success"></div>
@@ -1565,6 +1609,11 @@ async function saveWallet() {
   msgEl.style.display = 'none';
   errEl.style.display = 'none';
 
+  if (!walletAddress || !polyApiKey || !polyApiSecret || !polyApiPassphrase) {
+    errEl.textContent = '⚠️ Please fill in all fields — Wallet Address, API Key, Secret and Passphrase are all required.';
+    errEl.style.display = 'block';
+    return;
+  }
   if (!walletAddress.match(/^0x[0-9a-fA-F]{40}$/)) {
     errEl.textContent = 'Invalid wallet address format.';
     errEl.style.display = 'block';
@@ -1592,7 +1641,7 @@ async function saveWallet() {
   const botData = {
     user_id: currentUser.id,
     status: 'stopped',
-    dry_run: document.getElementById('dryRunToggle').checked,
+    dry_run: false,
     min_profit_pct: minProfit,
     max_position_usd: maxPosition,
   };
