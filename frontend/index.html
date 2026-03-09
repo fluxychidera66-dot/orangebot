@@ -1100,10 +1100,15 @@
         </div>
       </div>
       <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-        <label style="display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--muted); cursor:pointer;">
-          <input type="checkbox" id="dryRunToggle" checked style="accent-color:var(--orange);"/>
-          Dry Run Mode
-        </label>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--muted); cursor:pointer;">
+            <input type="checkbox" id="dryRunToggle" style="accent-color:var(--orange);"/>
+            Dry Run Mode
+          </label>
+          <div style="font-size:0.72rem; color:var(--muted); padding-left:24px; line-height:1.4;">
+            ⚠️ When ON — bot scans but makes <strong style="color:var(--orange);">no real trades</strong> and you earn nothing. Turn OFF to trade with real money and earn real profits.
+          </div>
+        </div>
         <button class="btn btn-primary toggle-btn" id="botToggleBtn" onclick="toggleBot()">Start Bot</button>
       </div>
     </div>
