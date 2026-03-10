@@ -6,6 +6,8 @@ Polls Supabase on every HTTP request + background thread
 import os
 import threading
 import time
+import subprocess
+import sys
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime, timezone
 from supabase import create_client, Client
@@ -56,17 +58,44 @@ def poll_and_start_bots():
                 "error_message": None,
             }).eq("user_id", user_id).execute()
 
+            # Launch actual bot worker process
+            bot_env = {
+                **os.environ,
+                "ORANGEBOT_USER_ID": user_id,
+                "WALLET_ADDRESS": wallet.get("wallet_address", ""),
+                "POLY_API_KEY": wallet.get("poly_api_key", ""),
+                "POLY_API_SECRET": wallet.get("poly_api_secret", ""),
+                "POLY_API_PASSPHRASE": wallet.get("poly_api_passphrase", ""),
+                "DRY_RUN": str(bot.get("dry_run", True)).lower(),
+                "MIN_PROFIT_THRESHOLD": str(float(bot.get("min_profit_pct", 1.5)) / 100),
+                "MAX_POSITION_SIZE": str(bot.get("max_position_usd", 100)),
+            }
+
+            proc = subprocess.Popen(
+                [sys.executable, "backend/bot_worker.py"],
+                env=bot_env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+
             active_bots[user_id] = {
                 "started_at": datetime.now().isoformat(),
                 "wallet": wallet.get("wallet_address", ""),
+                "proc": proc,
             }
-            print(f"[{datetime.now().isoformat()}] Bot started for user {user_id[:8]}")
+            print(f"[{datetime.now().isoformat()}] Bot worker launched for user {user_id[:8]} PID={proc.pid}")
 
-        # Check for stopped bots
+        # Check for stopped bots — kill their processes
         stopped = sb.table("bot_instances").select("user_id").eq("status", "stopped").execute()
         for bot in (stopped.data or []):
             uid = bot["user_id"]
             if uid in active_bots:
+                proc = active_bots[uid].get("proc")
+                if proc:
+                    try:
+                        proc.terminate()
+                    except:
+                        pass
                 del active_bots[uid]
 
         # Heartbeat
