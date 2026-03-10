@@ -83,13 +83,16 @@ async def run_bot():
 
     # Init clients
     try:
+        from py_clob_client.clob_types import ApiCreds
+        creds = ApiCreds(
+            api_key=POLY_API_KEY,
+            api_secret=POLY_API_SECRET,
+            api_passphrase=POLY_API_PASSPHRASE,
+        )
         clob = ClobClient(
             "https://clob.polymarket.com",
-            key=POLY_API_KEY,
-            secret=POLY_API_SECRET,
-            passphrase=POLY_API_PASSPHRASE,
             chain_id=137,
-            signature_type=2,
+            creds=creds,
         )
         log("CLOB client initialized")
     except Exception as e:
