@@ -73,7 +73,6 @@ async def run_bot():
 
     try:
         from py_clob_client.client import ClobClient
-        from polymarket_apis.markets import MarketsClient
     except ImportError as e:
         log(f"Import error: {e}")
         sb.table("bot_instances").update({
