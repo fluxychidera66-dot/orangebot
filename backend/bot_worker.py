@@ -117,8 +117,15 @@ async def run_bot():
             markets = markets_resp.get("data", []) if markets_resp else []
             scan_count += 1
 
-            if scan_count % 10 == 0:
-                log(f"Scanning... {len(markets)} markets found")
+            log(f"Scan #{scan_count} — {len(markets)} markets found")
+            if len(markets) == 0:
+                sb.table("bot_instances").update({
+                    "error_message": f"Scan #{scan_count} — 0 markets returned. Check API credentials.",
+                }).eq("user_id", USER_ID).execute()
+            else:
+                sb.table("bot_instances").update({
+                    "error_message": f"Scan #{scan_count} — {len(markets)} markets scanned. Looking for opportunities...",
+                }).eq("user_id", USER_ID).execute()
 
             for market in markets:
                 if is_bot_stopped():
